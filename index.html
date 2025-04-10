@@ -2,111 +2,153 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Forest Ecosystem Simulator</title>
+  <title>Forest Ecosystem Simulation</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
-      background-color: #f4fff4;
+      background-color: #f0fff0;
       text-align: center;
     }
     .controls {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      max-width: 500px;
-      margin: 0 auto 20px;
-      gap: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
     }
     .control-group {
-      background: #e0f0e0;
+      background: #e6f2e6;
       padding: 10px;
       border-radius: 8px;
+      min-width: 120px;
     }
     button {
-      margin: 3px;
+      margin: 5px;
       padding: 5px 10px;
     }
-    .checkboxes {
-      margin-top: 10px;
+    #forest {
+      width: 100%;
+      height: 400px;
+      position: relative;
+      background-color: #cce5cc;
+      overflow: hidden;
+      border: 1px solid #444;
+    }
+    img {
+      position: absolute;
+      width: 40px;
+      z-index: 2;
+    }
+    #river {
+      position: absolute;
+      left: 35%;
+      top: 0;
+      width: 30%;
+      height: 100%;
+      background: #4db8ff;
+      opacity: 0.6;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
 
-<h1>🌲 Forest Ecosystem Simulator</h1>
-<p>This simulation shows how populations interact. Teachers can adjust populations and conditions.</p>
+  <h1>🌲 Forest Ecosystem Simulator</h1>
+  <p>Add or remove plants and watch the forest grow.</p>
 
-<div class="controls">
-  <div class="control-group">
-    <strong>Trees: <span id="trees-count">5</span></strong><br>
-    <button onclick="change('trees', 1)">+</button>
-    <button onclick="change('trees', -1)">−</button>
+  <div class="controls">
+    <div class="control-group">
+      <strong>Maple: <span id="maple-count">3</span></strong><br>
+      <button onclick="change('maple', 1)">+</button>
+      <button onclick="change('maple', -1)">−</button>
+    </div>
+    <div class="control-group">
+      <strong>Poplar: <span id="poplar-count">3</span></strong><br>
+      <button onclick="change('poplar', 1)">+</button>
+      <button onclick="change('poplar', -1)">−</button>
+    </div>
+    <div class="control-group">
+      <strong>Grass: <span id="grass-count">15</span></strong><br>
+      <button onclick="change('grass', 1)">+</button>
+      <button onclick="change('grass', -1)">−</button>
+    </div>
+    <div class="control-group">
+      <strong>Bush: <span id="bush-count">4</span></strong><br>
+      <button onclick="change('bush', 1)">+</button>
+      <button onclick="change('bush', -1)">−</button>
+    </div>
   </div>
-  <div class="control-group">
-    <strong>Mushrooms: <span id="mushrooms-count">5</span></strong><br>
-    <button onclick="change('mushrooms', 1)">+</button>
-    <button onclick="change('mushrooms', -1)">−</button>
+
+  <p><strong>Year:</strong> <span id="year">0</span></p>
+  <button onclick="advanceYear()">Advance Year</button>
+  <button onclick="reset()">Reset</button>
+
+  <div id="forest">
+    <div id="river"></div>
   </div>
-  <div class="control-group">
-    <strong>Deer: <span id="deer-count">5</span></strong><br>
-    <button onclick="change('deer', 1)">+</button>
-    <button onclick="change('deer', -1)">−</button>
-  </div>
-  <div class="control-group">
-    <strong>Bears: <span id="bears-count">2</span></strong><br>
-    <button onclick="change('bears', 1)">+</button>
-    <button onclick="change('bears', -1)">−</button>
-  </div>
-</div>
 
-<div class="checkboxes">
-  <label><input type="checkbox" id="hunting"> Hunting allowed</label>
-  <label><input type="checkbox" id="logging"> Logging allowed</label>
-</div>
+  <script>
+    let state = {
+      year: 0,
+      maple: 3,
+      poplar: 3,
+      grass: 15,
+      bush: 4
+    };
 
-<br>
-<button onclick="advanceYear()">Advance Year</button>
-<button onclick="reset()">Reset</button>
-<p><strong>Year:</strong> <span id="year">0</span></p>
+    function updateDisplay() {
+      document.getElementById('maple-count').textContent = state.maple;
+      document.getElementById('poplar-count').textContent = state.poplar;
+      document.getElementById('grass-count').textContent = state.grass;
+      document.getElementById('bush-count').textContent = state.bush;
+      document.getElementById('year').textContent = state.year;
+      renderForest();
+    }
 
-<script>
-let state = {
-  year: 0,
-  trees: 5,
-  mushrooms: 5,
-  deer: 5,
-  bears: 2
-};
+    function change(species, delta) {
+      state[species] = Math.max(0, state[species] + delta);
+      updateDisplay();
+    }
 
-function updateDisplay() {
-  document.getElementById('trees-count').textContent = state.trees;
-  document.getElementById('mushrooms-count').textContent = state.mushrooms;
-  document.getElementById('deer-count').textContent = state.deer;
-  document.getElementById('bears-count').textContent = state.bears;
-  document.getElementById('year').textContent = state.year;
-}
+    function advanceYear() {
+      state.year++;
+      updateDisplay();
+    }
 
-function change(species, delta) {
-  state[species] = Math.max(0, state[species] + delta);
-  updateDisplay();
-}
+    function reset() {
+      state = {
+        year: 0,
+        maple: 3,
+        poplar: 3,
+        grass: 15,
+        bush: 4
+      };
+      updateDisplay();
+    }
 
-function advanceYear() {
-  state.year++;
-  if (state.trees > 0 && state.deer > 0) state.deer += 1;
-  if (state.deer > 2 && state.bears > 0) state.bears += 1;
-  if (document.getElementById('logging').checked) state.trees = Math.max(0, state.trees - 2);
-  if (document.getElementById('hunting').checked) state.bears = Math.max(0, state.bears - 1);
-  updateDisplay();
-}
+    function renderForest() {
+      const forest = document.getElementById('forest');
+      forest.innerHTML = '<div id="river"></div>';
 
-function reset() {
-  state = { year: 0, trees: 5, mushrooms: 5, deer: 5, bears: 2 };
-  updateDisplay();
-}
+      drawPlants('maple.png', state.maple, forest);
+      drawPlants('poplar.png', state.poplar, forest);
+      drawPlants('grass.png', state.grass, forest);
+      drawPlants('bush.png', state.bush, forest);
+    }
 
-updateDisplay();
-</script>
+    function drawPlants(src, count, container) {
+      for (let i = 0; i < count; i++) {
+        const img = document.createElement('img');
+        img.src = src;
+        img.style.left = Math.random() * 95 + '%';
+        img.style.top = Math.random() * 85 + '%';
+        container.appendChild(img);
+      }
+    }
+
+    updateDisplay();
+  </script>
 
 </body>
 </html>
