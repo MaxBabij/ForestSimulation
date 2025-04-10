@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Forest Ecosystem Simulator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4fff4;
+      text-align: center;
+    }
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      max-width: 500px;
+      margin: 0 auto 20px;
+      gap: 10px;
+    }
+    .control-group {
+      background: #e0f0e0;
+      padding: 10px;
+      border-radius: 8px;
+    }
+    button {
+      margin: 3px;
+      padding: 5px 10px;
+    }
+    .checkboxes {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🌲 Forest Ecosystem Simulator</h1>
+<p>This simulation shows how populations interact. Teachers can adjust populations and conditions.</p>
+
+<div class="controls">
+  <div class="control-group">
+    <strong>Trees: <span id="trees-count">5</span></strong><br>
+    <button onclick="change('trees', 1)">+</button>
+    <button onclick="change('trees', -1)">−</button>
+  </div>
+  <div class="control-group">
+    <strong>Mushrooms: <span id="mushrooms-count">5</span></strong><br>
+    <button onclick="change('mushrooms', 1)">+</button>
+    <button onclick="change('mushrooms', -1)">−</button>
+  </div>
+  <div class="control-group">
+    <strong>Deer: <span id="deer-count">5</span></strong><br>
+    <button onclick="change('deer', 1)">+</button>
+    <button onclick="change('deer', -1)">−</button>
+  </div>
+  <div class="control-group">
+    <strong>Bears: <span id="bears-count">2</span></strong><br>
+    <button onclick="change('bears', 1)">+</button>
+    <button onclick="change('bears', -1)">−</button>
+  </div>
+</div>
+
+<div class="checkboxes">
+  <label><input type="checkbox" id="hunting"> Hunting allowed</label>
+  <label><input type="checkbox" id="logging"> Logging allowed</label>
+</div>
+
+<br>
+<button onclick="advanceYear()">Advance Year</button>
+<button onclick="reset()">Reset</button>
+<p><strong>Year:</strong> <span id="year">0</span></p>
+
+<script>
+let state = {
+  year: 0,
+  trees: 5,
+  mushrooms: 5,
+  deer: 5,
+  bears: 2
+};
+
+function updateDisplay() {
+  document.getElementById('trees-count').textContent = state.trees;
+  document.getElementById('mushrooms-count').textContent = state.mushrooms;
+  document.getElementById('deer-count').textContent = state.deer;
+  document.getElementById('bears-count').textContent = state.bears;
+  document.getElementById('year').textContent = state.year;
+}
+
+function change(species, delta) {
+  state[species] = Math.max(0, state[species] + delta);
+  updateDisplay();
+}
+
+function advanceYear() {
+  state.year++;
+  if (state.trees > 0 && state.deer > 0) state.deer += 1;
+  if (state.deer > 2 && state.bears > 0) state.bears += 1;
+  if (document.getElementById('logging').checked) state.trees = Math.max(0, state.trees - 2);
+  if (document.getElementById('hunting').checked) state.bears = Math.max(0, state.bears - 1);
+  updateDisplay();
+}
+
+function reset() {
+  state = { year: 0, trees: 5, mushrooms: 5, deer: 5, bears: 2 };
+  updateDisplay();
+}
+
+updateDisplay();
+</script>
+
+</body>
+</html>
