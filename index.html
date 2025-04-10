@@ -54,7 +54,7 @@
 <body>
 
   <h1>🌲 Forest Ecosystem Simulator</h1>
-  <p>Add or remove plants and watch the forest grow. Plants avoid growing in the river.</p>
+  <p>The simulation begins with a naturally populated forest. Add or remove species below.</p>
 
   <div class="controls">
     <div class="control-group">
@@ -105,6 +105,14 @@
       return { x, y };
     }
 
+    function clampToForest(val) {
+      return Math.max(0, Math.min(95, val));
+    }
+
+    function inRiver(x) {
+      return x >= riverLeft && x <= riverRight;
+    }
+
     function addPlant(type) {
       const { x, y } = randomPositionExcludingRiver();
       state.plants.push({ type, x, y });
@@ -129,6 +137,33 @@
         year: 0,
         plants: []
       };
+
+      // Generate tree rows
+      for (let row = 0; row < 3; row++) {
+        for (let i = 0; i < 5; i++) {
+          const baseX = i * 15 + (Math.random() * 5);
+          const baseY = row * 20 + (Math.random() * 5);
+          const x = clampToForest(baseX);
+          const y = clampToForest(baseY);
+          const type = Math.random() < 0.5 ? 'maple' : 'poplar';
+          if (!inRiver(x)) {
+            state.plants.push({ type, x, y });
+          }
+        }
+      }
+
+      // Add grass randomly
+      for (let i = 0; i < 25; i++) {
+        const { x, y } = randomPositionExcludingRiver();
+        state.plants.push({ type: 'grass', x, y });
+      }
+
+      // Add bushes
+      for (let i = 0; i < 6; i++) {
+        const { x, y } = randomPositionExcludingRiver();
+        state.plants.push({ type: 'bush', x, y });
+      }
+
       updateDisplay();
     }
 
@@ -160,7 +195,7 @@
       }
     }
 
-    updateDisplay();
+    reset(); // Initialize with full forest
   </script>
 
 </body>
