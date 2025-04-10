@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Forest Ecosystem Simulation</title>
+  <title>Forest Ecosystem Simulator</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -42,9 +42,8 @@
     }
     #river {
       position: absolute;
-      left: 35%;
-      top: 0;
-      width: 30%;
+      left: 45%;
+      width: 10%;
       height: 100%;
       background: #4db8ff;
       opacity: 0.6;
@@ -55,28 +54,28 @@
 <body>
 
   <h1>🌲 Forest Ecosystem Simulator</h1>
-  <p>Add or remove plants and watch the forest grow.</p>
+  <p>Add or remove plants and watch the forest grow. Plants avoid growing in the river.</p>
 
   <div class="controls">
     <div class="control-group">
-      <strong>Maple: <span id="maple-count">3</span></strong><br>
-      <button onclick="change('maple', 1)">+</button>
-      <button onclick="change('maple', -1)">−</button>
+      <strong>Maple: <span id="maple-count">0</span></strong><br>
+      <button onclick="addPlant('maple')">+</button>
+      <button onclick="removePlant('maple')">−</button>
     </div>
     <div class="control-group">
-      <strong>Poplar: <span id="poplar-count">3</span></strong><br>
-      <button onclick="change('poplar', 1)">+</button>
-      <button onclick="change('poplar', -1)">−</button>
+      <strong>Poplar: <span id="poplar-count">0</span></strong><br>
+      <button onclick="addPlant('poplar')">+</button>
+      <button onclick="removePlant('poplar')">−</button>
     </div>
     <div class="control-group">
-      <strong>Grass: <span id="grass-count">15</span></strong><br>
-      <button onclick="change('grass', 1)">+</button>
-      <button onclick="change('grass', -1)">−</button>
+      <strong>Grass: <span id="grass-count">0</span></strong><br>
+      <button onclick="addPlant('grass')">+</button>
+      <button onclick="removePlant('grass')">−</button>
     </div>
     <div class="control-group">
-      <strong>Bush: <span id="bush-count">4</span></strong><br>
-      <button onclick="change('bush', 1)">+</button>
-      <button onclick="change('bush', -1)">−</button>
+      <strong>Bush: <span id="bush-count">0</span></strong><br>
+      <button onclick="addPlant('bush')">+</button>
+      <button onclick="removePlant('bush')">−</button>
     </div>
   </div>
 
@@ -91,24 +90,33 @@
   <script>
     let state = {
       year: 0,
-      maple: 3,
-      poplar: 3,
-      grass: 15,
-      bush: 4
+      plants: []
     };
 
-    function updateDisplay() {
-      document.getElementById('maple-count').textContent = state.maple;
-      document.getElementById('poplar-count').textContent = state.poplar;
-      document.getElementById('grass-count').textContent = state.grass;
-      document.getElementById('bush-count').textContent = state.bush;
-      document.getElementById('year').textContent = state.year;
-      renderForest();
+    const riverLeft = 45;
+    const riverRight = 55;
+
+    function randomPositionExcludingRiver() {
+      let x;
+      do {
+        x = Math.random() * 100;
+      } while (x >= riverLeft && x <= riverRight);
+      const y = Math.random() * 85;
+      return { x, y };
     }
 
-    function change(species, delta) {
-      state[species] = Math.max(0, state[species] + delta);
+    function addPlant(type) {
+      const { x, y } = randomPositionExcludingRiver();
+      state.plants.push({ type, x, y });
       updateDisplay();
+    }
+
+    function removePlant(type) {
+      const index = state.plants.map(p => p.type).lastIndexOf(type);
+      if (index !== -1) {
+        state.plants.splice(index, 1);
+        updateDisplay();
+      }
     }
 
     function advanceYear() {
@@ -119,31 +127,36 @@
     function reset() {
       state = {
         year: 0,
-        maple: 3,
-        poplar: 3,
-        grass: 15,
-        bush: 4
+        plants: []
       };
       updateDisplay();
+    }
+
+    function updateDisplay() {
+      const counts = { maple: 0, poplar: 0, grass: 0, bush: 0 };
+      for (const plant of state.plants) {
+        counts[plant.type]++;
+      }
+
+      document.getElementById('maple-count').textContent = counts.maple;
+      document.getElementById('poplar-count').textContent = counts.poplar;
+      document.getElementById('grass-count').textContent = counts.grass;
+      document.getElementById('bush-count').textContent = counts.bush;
+      document.getElementById('year').textContent = state.year;
+
+      renderForest();
     }
 
     function renderForest() {
       const forest = document.getElementById('forest');
       forest.innerHTML = '<div id="river"></div>';
 
-      drawPlants('maple.png', state.maple, forest);
-      drawPlants('poplar.png', state.poplar, forest);
-      drawPlants('grass.png', state.grass, forest);
-      drawPlants('bush.png', state.bush, forest);
-    }
-
-    function drawPlants(src, count, container) {
-      for (let i = 0; i < count; i++) {
+      for (const plant of state.plants) {
         const img = document.createElement('img');
-        img.src = src;
-        img.style.left = Math.random() * 95 + '%';
-        img.style.top = Math.random() * 85 + '%';
-        container.appendChild(img);
+        img.src = `${plant.type}.png`;
+        img.style.left = `${plant.x}%`;
+        img.style.top = `${plant.y}%`;
+        forest.appendChild(img);
       }
     }
 
